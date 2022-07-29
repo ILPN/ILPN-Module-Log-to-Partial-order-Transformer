@@ -1,6 +1,10 @@
 import {Component} from '@angular/core';
 import {APP_BASE_HREF} from '@angular/common';
-import {ConcurrencyRelation, DropFile, FD_CONCURRENCY, FD_LOG, FD_PETRI_NET, Trace, XesLogParserService} from 'ilpn-components';
+import {
+    ConcurrencyParserService, ConcurrencyRelation, DropFile, FD_CONCURRENCY, FD_LOG, FD_PETRI_NET,
+    IncrementingCounter,
+    LogToPartialOrderTransformerService, PetriNetSerialisationService, Trace, XesLogParserService
+} from 'ilpn-components';
 import {FormControl} from '@angular/forms';
 
 @Component({
@@ -23,20 +27,46 @@ export class AppComponent {
 
     public result: Array<DropFile> | undefined = undefined;
 
+    public fcCleanLog: FormControl;
     public fcAddStartStop: FormControl;
     public fcRemovePrefixes: FormControl;
 
 
-    constructor(private _logParser: XesLogParserService) {
+    constructor(
+        private _logParser: XesLogParserService,
+        private _concurrencyParser: ConcurrencyParserService,
+        private _logToPartialOrderConverter: LogToPartialOrderTransformerService,
+        private _pnSerialiser: PetriNetSerialisationService
+    ) {
+        this.fcCleanLog = new FormControl(true);
         this.fcAddStartStop = new FormControl(false);
         this.fcRemovePrefixes = new FormControl(false);
     }
 
     processLogUpload(files: Array<DropFile>) {
-
+        this.log = this._logParser.parse(files[0].content);
+        this.convertLog();
     }
 
     processConcurrencyUpload(files: Array<DropFile>) {
+        this.concurrency = this._concurrencyParser.parse(files[0].content);
+        console.debug(this.concurrency);
+        this.convertLog();
+    }
 
+    private convertLog() {
+        if (!this.log || !this.concurrency) {
+            return;
+        }
+
+        const counter = new IncrementingCounter();
+
+        this.result = this._logToPartialOrderConverter.transformToPartialOrders(this.log, this.concurrency, {
+            cleanLog: this.fcCleanLog.value,
+            addStartStopEvent: this.fcAddStartStop.value,
+            discardPrefixes: this.fcRemovePrefixes.value
+        }).map(pn => {
+            return new DropFile(`po${counter.next()}.pn`, this._pnSerialiser.serialise(pn));
+        });
     }
 }
