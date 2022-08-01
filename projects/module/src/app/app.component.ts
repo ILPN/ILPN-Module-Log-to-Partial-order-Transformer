@@ -65,8 +65,10 @@ export class AppComponent {
             cleanLog: this.fcCleanLog.value,
             addStartStopEvent: this.fcAddStartStop.value,
             discardPrefixes: this.fcRemovePrefixes.value
-        }).map(pn => {
-            return new DropFile(`po${counter.next()}.pn`, this._pnSerialiser.serialise(pn));
-        });
+        })
+            .sort((a, b) => b.frequency! - a.frequency!)
+            .map(pn => {
+                return new DropFile(`po${counter.next()}.pn`, this._pnSerialiser.serialise(pn));
+            });
     }
 }
