@@ -6,7 +6,7 @@
         <ilpn-file-upload [fileDisplay]="FD_LOG" [showText]="log === undefined" (fileContent)="processLogUpload($event)" descriptionText="Drop a .XES log file here"></ilpn-file-upload>
         <ilpn-file-upload [fileDisplay]="FD_CONCURRENCY" [showText]="concurrency === undefined" (fileContent)="processConcurrencyUpload($event)" descriptionText="Drop a concurrency file here"></ilpn-file-upload>
 
-        <div fxLayout="column" fxLayoutAlign="center start" class="sliders">
+        <div fxLayout="column" fxLayoutAlign="center start" class="toggles">
             <mat-slide-toggle [formControl]="fcCleanLog" fxFlexAlign="center" class="slider"><span class="font">process only <i>complete</i> events</span></mat-slide-toggle>
             <mat-slide-toggle [formControl]="fcAddStartStop" fxFlexAlign="center" class="slider"><span class="font">add start/stop events</span></mat-slide-toggle>
             <mat-slide-toggle [formControl]="fcRemovePrefixes" fxFlexAlign="center" class="slider"><span class="font">remove prefix traces</span></mat-slide-toggle>
